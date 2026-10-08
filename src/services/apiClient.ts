@@ -1,24 +1,29 @@
-import { ScamShieldFullAssessment, UrlRiskAnalysis } from '../types/scamshield';
-import { executeHeuristicScamAssessment, analyzeUrlStatic } from './heuristicScamEngine';
+import { ScamShieldAssessment, UrlRiskAnalysis } from '../types/scamshield.ts';
+import { executeHeuristicScamAssessment, analyzeUrlStatic } from './heuristicScamEngine.ts';
 
-export async function analyzeMessageApi(message: string, mode: 'ai' | 'turbo' = 'ai'): Promise<ScamShieldFullAssessment> {
+export async function analyzeMessageApi(
+  message: string,
+  url?: string,
+  mode: 'ai' | 'turbo' = 'ai'
+): Promise<ScamShieldAssessment> {
   try {
     const res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, mode }),
+      body: JSON.stringify({ message, url, mode }),
     });
 
     if (!res.ok) {
-      throw new Error(`Server returned HTTP ${res.status}`);
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.error || `Server returned HTTP ${res.status}`);
     }
 
     const data = await res.json();
     return data;
-  } catch (error) {
-    console.warn('API call failed, running client-side ScamShield heuristic engine:', error);
-    // Instant seamless client-side execution guarantee
-    return executeHeuristicScamAssessment(message);
+  } catch (error: any) {
+    console.warn('API call encountered an issue, running client-side ScamShield heuristic engine:', error?.message || error);
+    // Instant seamless fallback guarantee
+    return executeHeuristicScamAssessment(message, url);
   }
 }
 
