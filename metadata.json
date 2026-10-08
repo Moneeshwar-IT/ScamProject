@@ -1,0 +1,6 @@
+{
+  "name": "ScamShield AI",
+  "description": "AI-powered digital safety and multi-engine scam detection assistant for messages, emails, SMS, and suspicious links.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
